@@ -1,0 +1,10 @@
+---
+import H4 from './H4.astro'
+
+const { name, id, large_thumb_url } = Astro.props
+---
+
+<a href={`/product/${id}`} class="flex flex-col space-y-4">
+    <img class="w-full rounded border" src={large_thumb_url} />
+    <H4 text={name} />
+</a>

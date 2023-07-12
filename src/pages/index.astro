@@ -1,0 +1,24 @@
+---
+import H1 from '@/components/H1.astro'
+import Sep from '@/components/Sep.astro'
+import Layout from '@/layouts/Layout.astro'
+import Product from '@/components/Product.astro'
+
+var myHeaders = new Headers()
+myHeaders.append('Accept', 'application/vnd.api+json')
+myHeaders.append('Content-Type', 'application/vnd.api+json')
+myHeaders.append('Authorization', import.meta.env.AUTH_HEADER)
+var requestOptions = {
+  method: 'GET',
+  headers: myHeaders,
+}
+const productsPromise = fetch('https://api.lemonsqueezy.com/v1/products', requestOptions).then((response) => response.json())
+---
+
+<Layout>
+  <div class="mt-8 flex flex-col w-full max-w-2xl space-y-8">
+    <H1 text="Products" />
+    <Sep />
+    {productsPromise.then((res) => res.data.map((i) => <Product id={i.id} {...i.attributes} />))}
+  </div>
+</Layout>

@@ -1,0 +1,58 @@
+---
+import H1 from '@/src/components/H1.astro'
+import Layout from '@/layouts/Layout.astro'
+import Sep from '@/src/components/Sep.astro'
+import Button from '@/src/components/Button.astro'
+
+const { slug } = Astro.params
+
+var myHeaders = new Headers()
+myHeaders.append('Accept', 'application/vnd.api+json')
+myHeaders.append('Content-Type', 'application/vnd.api+json')
+myHeaders.append('Authorization', import.meta.env.AUTH_HEADER)
+var requestOptions = {
+  method: 'GET',
+  headers: myHeaders,
+}
+const productPromise = fetch(`https://api.lemonsqueezy.com/v1/products/${slug}`, requestOptions).then((response) => response.json())
+---
+
+<Layout>
+  <div class="mt-8 flex flex-col w-full max-w-2xl space-y-8">
+    <a class="text-gray-400 font-light text-sm hover:underline" href="/"> &larr; Back To Products</a>
+    {
+      productPromise.then((product) => (
+        <>
+          <H1 text={product.data.attributes.name} />
+          <Sep />
+          <div id="listenClick" random-attribute={product.data.attributes.buy_now_url}>
+            <Button text="Buy" />
+          </div>
+          <img class="w-full rounded border" src={product.data.attributes.large_thumb_url} />
+          <div set:html={product.data.attributes.description} />
+        </>
+      ))
+    }
+  </div>
+</Layout>
+
+<script>
+  document.querySelector('#listenClick')?.classList.add('pointer-events-none')
+  var script = document.createElement('script')
+  script.onload = () => {
+    setTimeout(() => {
+      window.createLemonSqueezy()
+      document.querySelector('#listenClick')?.classList.remove('pointer-events-none')
+      document.querySelector('#listenClick').addEventListener('click', () => {
+        window.LemonSqueezy.Url.Open(document.querySelector('#listenClick').getAttribute('random-attribute'))
+      })
+      window.LemonSqueezy.Setup({
+        eventHandler: (event) => {
+          console.log(event)
+        },
+      })
+    }, 100)
+  }
+  script.src = 'https://assets.lemonsqueezy.com/lemon.js'
+  document.head.appendChild(script)
+</script>
